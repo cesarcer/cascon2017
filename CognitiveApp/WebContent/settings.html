@@ -1,0 +1,143 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Settings</title>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- <link rel="stylesheet" href="themes/jquery.mobile.icons.min.css" />
+<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile.structure-1.4.5.min.css" />
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script> 
+<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>  -->
+
+<link rel="stylesheet" href="https://code.jquery.com/mobile/git/jquery.mobile-git.css">
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+<script src="https://code.jquery.com/mobile/git/jquery.mobile-git.min.js"></script>
+<link rel="stylesheet" href="themes/themes.css" />
+
+<script src="ThemeManager.js"></script>
+</head>
+<body>
+	<div data-role="page" id="page">
+		<div data-role="header" id="header" data-position="fixed">
+			<h3>Settings</h3>
+		</div>
+		<div data-role="content" style="padding: 0px">
+			<select name="select" id="selectRSSFeed" onchange="setRSS()">
+				<option value="http://feeds.bbci.co.uk/news/rss.xml">Top Stories</option>
+				<option value="http://feeds.bbci.co.uk/news/world/rss.xml">World</option>
+				<option value="http://feeds.bbci.co.uk/news/uk/rss.xml">UK</option>
+				<option value="http://feeds.bbci.co.uk/news/business/rss.xml">Business</option>
+				<option value="http://feeds.bbci.co.uk/news/politics/rss.xml">Politics</option>
+				<option value="http://feeds.bbci.co.uk/news/health/rss.xml">Health</option>
+				<option value="http://feeds.bbci.co.uk/news/education/rss.xml">Education and Family</option>
+				<option value="http://feeds.bbci.co.uk/news/science_and_environment/rss.xml">Science and Environment</option>
+				<option value="http://feeds.bbci.co.uk/news/technology/rss.xml">Technology</option>
+				<option value="http://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml">Entertainment and Arts</option>
+			</select>
+		</div>
+		
+		<label for="sliderBrightness">Brightness calibration:</label>
+		<input type="range" name="sliderBrightness" id="sliderBrightness" value="0" min="-50" max="50" onchange="changeBrightness()">
+		
+		<label for="sliderRefreshTime">Refresh time (seconds):</label>
+		<input type="range" name="sliderRefreshTime" id="sliderRefreshTime" value="10" min="1" max="100" onchange="changeRefreshTime()">
+
+		<div data-role="footer" data-position="fixed" id="footer">
+			<div data-role="navbar" id="navbar">
+				<ul>
+					<li><a href="index.html" data-icon="grid" id="item" data-ajax="false">News</a></li>
+					<li><a href="settings.html" data-icon="gear" id="item0" class="ui-btn-active" data-ajax="false">Settings</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	
+	<script>
+		// Initialize values
+		var refreshTime = localStorage.getItem('refreshTime');
+		if(refreshTime == null) {
+			refreshTime = 10000; // 10 seconds to milliseconds
+		}
+		$('#sliderRefreshTime').attr('value', refreshTime/1000);
+		
+		var brightnessValue = localStorage.getItem('brightnessValue');
+		if(brightnessValue == null) {
+			brightnessValue = 0;
+		}
+		$('#sliderBrightness').attr('value', brightnessValue);
+		
+		//refreshTime = $("#sliderRefreshTime").val() * 1000; // seconds to milliseconds
+		
+		function refresh() {
+  			//-----------------Colors---------------------------------------------
+			var toneUrl = "https://node-red-bluemix-starter-20170711135923629.mybluemix.net/tone-data";
+			
+			function parseTone(url, callback) {
+			    $.ajax({
+			      url: url,
+			      dataType: 'jsonp',
+			      success: function(data) {
+			        callback(data.tone);
+			      }
+			    });
+			}
+			
+			parseTone(toneUrl, function(tone) {
+				setTheme(tone);
+			});
+			
+			//-----------------Light---------------------------------------------
+			var luxUrl = "https://node-red-bluemix-starter-20170711135923629.mybluemix.net/sensor-data";
+			
+			function parseLux(url, callback) {
+			    $.ajax({
+			      url: url,
+			      dataType: 'jsonp',
+			      success: function(data) {
+			        callback(data.lux);
+			      }
+			    });
+			}
+			
+			parseLux(luxUrl, function(lux) {
+				setBrightness(lux);
+			});
+			
+			refreshTime = localStorage.getItem('refreshTime');
+			
+			if(refreshTime == null) {
+				refreshTime = 10000; // 10 seconds to milliseconds
+			}
+			
+			setTimeout(refresh, refreshTime);
+		}
+		
+		refresh();
+		
+		function changeBrightness() {
+			brightnessValue = $("#sliderBrightness").val();
+		
+			setBrightnessCalibration(brightnessValue);
+			localStorage.setItem('brightnessValue', brightnessValue);
+		}
+		
+		function changeRefreshTime() {
+			refreshTime = $("#sliderRefreshTime").val() * 1000; // seconds to milliseconds
+		
+			localStorage.setItem('refreshTime', refreshTime);
+		}
+	
+		//-----------------RSS---------------------------------------------
+		function setRSS(){
+			localStorage.setItem('rssUrl', $("#selectRSSFeed option:selected").val());
+			localStorage.setItem('rssTitle', $("#selectRSSFeed option:selected").text());
+		}
+			
+		//var index = $("#selectRSSFeed").prop('selectedIndex');
+		//$("#selectRSSFeed").val(index);
+	</script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>News!</title>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+<script src="jquery/jquery.mobile-1.4.5.js"></script>
+
+<link href="jquery/jquery.mobile-1.4.5.css" rel="stylesheet">
+<link rel="stylesheet" href="themes/jquery.mobile.icons.min.css" />
+<link rel="stylesheet" href="themes/themes.css" />
+
+<script src="ThemeManager.js"></script>
+
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+</head>
+<body>
+	<div data-role="page" id="page">
+		<div data-role="header" id="header" data-position="fixed">
+			<h6>News!</h6>
+		</div>
+		
+		<div data-role="content" style="padding: 0px">
+			<div data-role="collapsible-set" id="collapsible-set">
+			</div>
+		</div>
+		
+		<div data-role="footer" data-position="fixed" id="footer">
+			<div data-role="navbar" id="navbar">
+				<ul>
+					<li><a href="index.html" data-icon="grid" id="item" class="ui-btn-active" data-ajax="false">News</a></li>
+					<li><a href="settings.html" data-icon="gear" id="item0" data-ajax="false">Settings</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	
+	<script>
+		//-----------------RSS------------------------------------------------
+		//var rssUrl = "https://stackoverflow.com/feeds/tag/ibm-bluemix";
+		var rssUrl = localStorage.getItem('rssUrl');
+		var rssTitle = localStorage.getItem('rssTitle');
+		
+		function parseRSS(url, callback) {
+		    $.ajax({
+		      url: 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(url),
+		      dataType: 'jsonp',
+		      success: function(data) {
+		        callback(data);
+		      }
+		    });
+		}
+		
+		html = "";
+			
+		parseRSS(rssUrl, function(rss) {
+			if (rss.status != "error") {
+				var items = rss.items;
+				
+				for(i = 0; i < items.length; i++) {
+					html += "<div data-role='collapsible' id='collapsible" + i + "'>" +
+								"<h5>" + items[i].title + "</h5>" +
+								"<p><b>" + items[i].title + "</b></p>";
+								
+								if(items[i].author) { // If author is defined
+									html += "<p>Author: " + items[i].author + "</p>";
+								}
+								
+								html += "<hr \>" +
+								"<p>" + items[i].content + "</p>" +
+								"<hr \>" +
+								"<p>Date: " + items[i].pubDate + "</p>" +
+								"<p><a href='" + items[i].link + "'>" + "Source" + "</a></p>" +
+							"</div>";
+				}
+				
+				// Update header
+				$(".ui-header .ui-title").text(rssTitle);	
+				
+				// Update list
+				$("div#collapsible-set").html(html);
+				$('div#collapsible-set').collapsibleset('refresh');
+			}
+		});
+		
+		function refresh() {
+  			//-----------------Colors---------------------------------------------
+			var toneUrl = "https://node-red-bluemix-starter-20170711135923629.mybluemix.net/tone-data";
+			
+			function parseTone(url, callback) {
+			    $.ajax({
+			      url: url,
+			      dataType: 'jsonp',
+			      success: function(data) {
+			        callback(data.tone);
+			      }
+			    });
+			}
+			
+			parseTone(toneUrl, function(tone) {
+				setTheme(tone);
+			});
+			
+			//-----------------Light---------------------------------------------
+			var brightnessValue = localStorage.getItem('brightnessValue');
+			refreshTime = localStorage.getItem('refreshTime');
+			
+			setBrightnessCalibration(brightnessValue);
+			
+			var luxUrl = "https://node-red-bluemix-starter-20170711135923629.mybluemix.net/sensor-data";
+			
+			function parseLux(url, callback) {
+			    $.ajax({
+			      url: url,
+			      dataType: 'jsonp',
+			      success: function(data) {
+			        callback(data.lux);
+			      }
+			    });
+			}
+			
+			parseLux(luxUrl, function(lux) {
+				setBrightness(lux);
+			});
+			
+			var refreshTime = localStorage.getItem('refreshTime');
+			
+			if(refreshTime == null) {
+				refreshTime = 10000; // 10 seconds to milliseconds
+			}
+			
+			setTimeout(refresh, refreshTime);
+		}
+		
+		refresh();
+	</script>
+</body>
+</html>
