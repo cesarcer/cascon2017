@@ -86,7 +86,7 @@
 		
 		function refresh() {
   			//-----------------Colors---------------------------------------------
-			var toneUrl = "https://node-red-bluemix-starter-20170711135923629.mybluemix.net/tone-data";
+			var toneUrl = "https://<REPLACE_HOSTNAME_HERE>/tone-data";
 			
 			function parseTone(url, callback) {
 			    $.ajax({
@@ -108,7 +108,7 @@
 			
 			setBrightnessCalibration(brightnessValue);
 			
-			var luxUrl = "https://node-red-bluemix-starter-20170711135923629.mybluemix.net/sensor-data";
+			var luxUrl = "https://<REPLACE_HOSTNAME_HERE>/sensor-data";
 			
 			function parseLux(url, callback) {
 			    $.ajax({
