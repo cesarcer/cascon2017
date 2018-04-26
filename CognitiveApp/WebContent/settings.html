@@ -73,7 +73,7 @@
 		
 		function refresh() {
   			//-----------------Colors---------------------------------------------
-			var toneUrl = "https://<REPLACE_HOSTNAME_HERE>/tone-data";
+			var toneUrl = "http://localhost:1880/tone-data";
 			
 			function parseTone(url, callback) {
 			    $.ajax({
@@ -90,7 +90,7 @@
 			});
 			
 			//-----------------Light---------------------------------------------
-			var luxUrl = "https://<REPLACE_HOSTNAME_HERE>/sensor-data";
+			var luxUrl = "http://localhost:1880/sensor-data";
 			
 			function parseLux(url, callback) {
 			    $.ajax({
